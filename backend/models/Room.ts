@@ -8,6 +8,11 @@ const roomSchema = new mongoose.Schema({
     enum: ['waiting', 'active', 'finished'], 
     default: 'waiting' 
   },
+  codes: {
+    type: Map,
+    of: String,
+    default: {}
+  }
 }, { timestamps: true });
 
 export default mongoose.model('Room', roomSchema);

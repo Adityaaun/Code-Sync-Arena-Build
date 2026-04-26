@@ -64,11 +64,29 @@ const BattlePage: React.FC = () => {
         setStatus('Opponent joined! Battle Active!');
       });
 
+      socket.on('code_change', ({ userId, code }) => {
+        if (userId !== user.id) {
+          setOpponentCode(code);
+        }
+      });
+
       return () => {
         socket.off('opponent_joined');
+        socket.off('code_change');
       };
     }
   }, [socket, user, roomId]);
+
+  // Debounced code emission
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      if (socket && user && roomId && myCode !== '// Write your code here\n') {
+        socket.emit('code_change', { roomId, userId: user.id, code: myCode });
+      }
+    }, 300); // 300ms debounce
+
+    return () => clearTimeout(timeout);
+  }, [myCode, socket, user, roomId]);
 
   return (
     <div style={{ height: '100vh', display: 'flex', flexDirection: 'column' }}>
