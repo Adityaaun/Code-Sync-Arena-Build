@@ -16,6 +16,13 @@ interface RoomData {
   roomId: string;
   players: Player[];
   status: 'waiting' | 'active' | 'finished';
+  winner?: string;
+}
+
+interface TestResult {
+  passed: boolean;
+  output: string;
+  status: string;
 }
 
 const BattlePage: React.FC = () => {
@@ -24,12 +31,12 @@ const BattlePage: React.FC = () => {
   const { user } = useAuth();
   
   const [room, setRoom] = useState<RoomData | null>(null);
-  const [status, setStatus] = useState('Joining...');
-  const [myCode, setMyCode] = useState('// Write your code here\n');
-  const [opponentCode, setOpponentCode] = useState('// Opponent code will appear here\n');
-  const [language, setLanguage] = useState('javascript');
-  const [isRunning, setIsRunning] = useState(false);
-  const [testResults, setTestResults] = useState<any[]>([]);
+  const [status, setStatus] = useState<string>('Joining...');
+  const [myCode, setMyCode] = useState<string>('// Write your code here\n');
+  const [opponentCode, setOpponentCode] = useState<string>('// Opponent code will appear here\n');
+  const [language, setLanguage] = useState<string>('javascript');
+  const [isRunning, setIsRunning] = useState<boolean>(false);
+  const [testResults, setTestResults] = useState<TestResult[]>([]);
   const [winner, setWinner] = useState<string | null>(null);
 
   const sampleProblem = {
@@ -45,12 +52,13 @@ const BattlePage: React.FC = () => {
     const fetchRoom = async () => {
       try {
         const response = await api.get(`/room/${roomId}`);
-        setRoom(response.data);
-        if (response.data.status === 'active') {
+        const data: RoomData = response.data;
+        setRoom(data);
+        if (data.status === 'active') {
           setStatus('Battle Active!');
-        } else if (response.data.status === 'finished') {
+        } else if (data.status === 'finished') {
           setStatus('Match Finished');
-          setWinner(response.data.winner);
+          setWinner(data.winner || null);
         } else {
           setStatus('Waiting for opponent...');
         }
@@ -70,22 +78,28 @@ const BattlePage: React.FC = () => {
         setStatus('Opponent joined! Battle Active!');
       });
 
-      socket.on('code_change', ({ userId, code }) => {
+      socket.on('code_change', ({ userId, code }: { userId: string, code: string }) => {
         if (userId !== user.id) {
           setOpponentCode(code);
         }
       });
 
-      socket.on('result_update', ({ userId, results, allPassed }) => {
+      socket.on('result_update', ({ userId, results, allPassed }: { userId: string, results: TestResult[], allPassed: boolean }) => {
         if (userId === user.id) {
           setTestResults(results);
           setIsRunning(false);
         }
       });
 
-      socket.on('match_ended', ({ winnerId }) => {
+      socket.on('match_ended', ({ winnerId }: { winnerId: string }) => {
         setWinner(winnerId);
         setStatus('Match Finished');
+        setIsRunning(false); // Stop loading if running
+      });
+
+      socket.on('error', ({ message }: { message: string }) => {
+        alert(message);
+        setIsRunning(false);
       });
 
       return () => {
@@ -93,6 +107,7 @@ const BattlePage: React.FC = () => {
         socket.off('code_change');
         socket.off('result_update');
         socket.off('match_ended');
+        socket.off('error');
       };
     }
   }, [socket, user, roomId]);
@@ -109,19 +124,18 @@ const BattlePage: React.FC = () => {
   }, [myCode, socket, user, roomId, winner]);
 
   const handleRunCode = () => {
-    if (!socket || !user || !roomId || winner) return;
+    if (!socket || !user || !roomId || winner || isRunning) return;
     setIsRunning(true);
     setTestResults([]);
     socket.emit('run_code', { roomId, userId: user.id, code: myCode, language });
   };
 
   return (
-    <div style={{ height: '100vh', display: 'flex', flexDirection: 'column', position: 'relative' }}>
-      {/* Winner Overlay */}
+    <div style={{ height: '100vh', display: 'flex', flexDirection: 'column', position: 'relative', fontFamily: 'sans-serif' }}>
       {winner && (
         <div style={{
           position: 'absolute', top: 0, left: 0, width: '100%', height: '100%',
-          backgroundColor: 'rgba(0,0,0,0.7)', display: 'flex', flexDirection: 'column',
+          backgroundColor: 'rgba(0,0,0,0.8)', display: 'flex', flexDirection: 'column',
           justifyContent: 'center', alignItems: 'center', zIndex: 1000, color: 'white'
         }}>
           <h1 style={{ fontSize: '4em', marginBottom: '20px' }}>
@@ -136,7 +150,6 @@ const BattlePage: React.FC = () => {
         </div>
       )}
 
-      {/* Header */}
       <div style={{ padding: '10px 20px', borderBottom: '1px solid #ddd', display: 'flex', justifyContent: 'space-between', alignItems: 'center', backgroundColor: '#fff' }}>
         <div>
           <h4 style={{ margin: 0 }}>Room: {roomId}</h4>
@@ -160,9 +173,7 @@ const BattlePage: React.FC = () => {
         </div>
       </div>
 
-      {/* Main Content */}
       <div style={{ flexGrow: 1, display: 'flex', overflow: 'hidden' }}>
-        {/* Left Panel: Problem & Results */}
         <div style={{ width: '40%', height: '100%', display: 'flex', flexDirection: 'column' }}>
           <div style={{ flexGrow: 1, overflowY: 'auto' }}>
             <ProblemPanel 
@@ -172,24 +183,22 @@ const BattlePage: React.FC = () => {
             />
           </div>
           
-          {/* Results Section */}
-          <div style={{ height: '30%', borderTop: '2px solid #ddd', padding: '15px', backgroundColor: '#fff', overflowY: 'auto' }}>
-            <h4>Test Results</h4>
+          <div style={{ height: '35%', borderTop: '2px solid #ddd', padding: '15px', backgroundColor: '#fff', overflowY: 'auto' }}>
+            <h4 style={{ marginTop: 0 }}>Test Results</h4>
             {testResults.length === 0 && !isRunning && <p style={{ color: '#888' }}>Run your code to see results.</p>}
-            {isRunning && <p>Executing test cases...</p>}
+            {isRunning && <p>Executing test cases on Judge0...</p>}
             {testResults.map((res, index) => (
               <div key={index} style={{ marginBottom: '10px', padding: '10px', borderRadius: '4px', backgroundColor: res.passed ? '#e6fffa' : '#fff5f5', border: `1px solid ${res.passed ? '#38b2ac' : '#feb2b2'}` }}>
-                <span>Test Case {index + 1}: {res.passed ? '✅ Passed' : '❌ Failed'}</span>
-                <p style={{ margin: '5px 0 0 0', fontSize: '0.85em', color: '#4a5568' }}>
-                  <strong>Status:</strong> {res.status}
-                </p>
-                {!res.passed && <p style={{ margin: '5px 0 0 0', fontSize: '0.85em', color: '#c53030' }}><strong>Output:</strong> {res.output}</p>}
+                <strong>Test Case {index + 1}: {res.passed ? '✅ Passed' : '❌ Failed'}</strong>
+                <div style={{ marginTop: '5px', fontSize: '0.85em' }}>
+                  <span style={{ color: '#4a5568' }}>Status: {res.status}</span>
+                  {!res.passed && <pre style={{ marginTop: '5px', padding: '5px', backgroundColor: '#eee', borderRadius: '3px', whiteSpace: 'pre-wrap' }}>{res.output}</pre>}
+                </div>
               </div>
             ))}
           </div>
         </div>
 
-        {/* Right Panel: Editors */}
         <div style={{ width: '60%', display: 'flex', flexDirection: 'column', height: '100%' }}>
           <div style={{ height: '70%', borderBottom: '4px solid #ddd' }}>
             <CodeEditor 

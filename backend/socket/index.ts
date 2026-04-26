@@ -57,8 +57,8 @@ export const initSocket = (server: HttpServer) => {
           });
         }
 
-        // Emit results to the user
-        socket.emit('result_update', {
+        // Emit results to the whole room so everyone sees the progress
+        io.to(roomId).emit('result_update', {
           userId,
           results: testResults,
           allPassed

@@ -13,7 +13,14 @@ const languageMap: Record<string, number> = {
   java: 62
 };
 
-export const runCode = async (code: string, language: string, stdin: string) => {
+interface Judge0Response {
+  stdout: string;
+  stderr: string;
+  compile_output: string;
+  status: string;
+}
+
+export const runCode = async (code: string, language: string, stdin: string): Promise<Judge0Response> => {
   const languageId = languageMap[language] || 63;
 
   try {
@@ -27,7 +34,7 @@ export const runCode = async (code: string, language: string, stdin: string) => 
       {
         headers: {
           'content-type': 'application/json',
-          'X-RapidAPI-Key': process.env.RAPIDAPI_KEY,
+          'X-RapidAPI-Key': (process.env.RAPIDAPI_KEY || '').trim(),
           'X-RapidAPI-Host': RAPIDAPI_HOST,
         },
       }
@@ -42,7 +49,8 @@ export const runCode = async (code: string, language: string, stdin: string) => 
       status: status.description
     };
   } catch (error: any) {
-    console.error('Judge0 API Error:', error.response?.data || error.message);
-    throw new Error('Code execution failed');
+    const errorMsg = error.response?.data?.message || error.message || 'Unknown Judge0 Error';
+    console.error('Judge0 API Error:', errorMsg);
+    throw new Error(`Code execution failed: ${errorMsg}`);
   }
 };
