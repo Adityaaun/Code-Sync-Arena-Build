@@ -7,27 +7,51 @@ interface CodeEditorProps {
   language: string;
   setLanguage: (lang: string) => void;
   isReadOnly?: boolean;
+  label?: string;
 }
 
-const CodeEditor: React.FC<CodeEditorProps> = ({ code, onChange, language, setLanguage, isReadOnly = false }) => {
+const CodeEditor: React.FC<CodeEditorProps> = ({ code, onChange, language, setLanguage, isReadOnly = false, label }) => {
   return (
-    <div style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
-      <div style={{ padding: '10px', backgroundColor: '#f0f0f0', borderBottom: '1px solid #ddd', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <label>
-          Language: 
-          <select 
-            value={language} 
-            onChange={(e) => setLanguage(e.target.value)}
-            disabled={isReadOnly}
-            style={{ marginLeft: '10px', padding: '5px' }}
-          >
-            <option value="javascript">JavaScript</option>
-            <option value="python">Python</option>
-            <option value="cpp">C++</option>
-            <option value="java">Java</option>
-          </select>
-        </label>
-        {isReadOnly && <span style={{ color: '#888', fontSize: '0.8em' }}>Opponent's View (Read-Only)</span>}
+    <div style={{ 
+      height: '100%', 
+      display: 'flex', 
+      flexDirection: 'column',
+      borderRadius: '8px',
+      overflow: 'hidden',
+      border: '1px solid #e2e8f0',
+      boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+    }}>
+      <div style={{ 
+        padding: '10px 16px', 
+        backgroundColor: '#edf2f7', 
+        borderBottom: '1px solid #e2e8f0', 
+        display: 'flex', 
+        justifyContent: 'space-between', 
+        alignItems: 'center' 
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          {label && <span style={{ fontWeight: 'bold', fontSize: '0.85em', color: '#4a5568' }}>{label.toUpperCase()}</span>}
+          {!isReadOnly && (
+            <select 
+              value={language} 
+              onChange={(e) => setLanguage(e.target.value)}
+              style={{ 
+                padding: '4px 8px', 
+                borderRadius: '4px',
+                border: '1px solid #cbd5e0',
+                fontSize: '0.85em',
+                backgroundColor: 'white',
+                outline: 'none'
+              }}
+            >
+              <option value="javascript">JavaScript</option>
+              <option value="python">Python</option>
+              <option value="cpp">C++</option>
+              <option value="java">Java</option>
+            </select>
+          )}
+        </div>
+        {isReadOnly && <span style={{ color: '#718096', fontSize: '0.75em', fontStyle: 'italic' }}>READ-ONLY VIEW</span>}
       </div>
       <div style={{ flexGrow: 1 }}>
         <Editor
@@ -42,6 +66,7 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ code, onChange, language, setLa
             fontSize: 14,
             scrollBeyondLastLine: false,
             automaticLayout: true,
+            padding: { top: 10, bottom: 10 }
           }}
         />
       </div>
