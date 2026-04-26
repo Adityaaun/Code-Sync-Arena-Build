@@ -47,12 +47,16 @@ export const initSocket = (server: HttpServer) => {
       try {
         for (const testCase of problem.testCases) {
           const result = await runCode(code, language, testCase.input);
+          
+          // Priority: compile_output > stderr > stdout
+          const finalOutput = result.compile_output || result.stderr || result.stdout || 'No output';
+          
           const passed = result.stdout.trim() === testCase.output.trim();
           if (!passed) allPassed = false;
           
           testResults.push({
             passed,
-            output: result.stdout || result.stderr || result.compile_output,
+            output: finalOutput,
             status: result.status
           });
         }

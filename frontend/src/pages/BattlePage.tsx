@@ -191,8 +191,13 @@ const BattlePage: React.FC = () => {
               <div key={index} style={{ marginBottom: '10px', padding: '10px', borderRadius: '4px', backgroundColor: res.passed ? '#e6fffa' : '#fff5f5', border: `1px solid ${res.passed ? '#38b2ac' : '#feb2b2'}` }}>
                 <strong>Test Case {index + 1}: {res.passed ? '✅ Passed' : '❌ Failed'}</strong>
                 <div style={{ marginTop: '5px', fontSize: '0.85em' }}>
-                  <span style={{ color: '#4a5568' }}>Status: {res.status}</span>
-                  {!res.passed && <pre style={{ marginTop: '5px', padding: '5px', backgroundColor: '#eee', borderRadius: '3px', whiteSpace: 'pre-wrap' }}>{res.output}</pre>}
+                  <p style={{ margin: '0 0 5px 0', color: '#4a5568' }}><strong>Status:</strong> {res.status}</p>
+                  {res.output && res.output !== 'No output' && (
+                    <>
+                      <strong>Output:</strong>
+                      <pre style={{ marginTop: '5px', padding: '8px', backgroundColor: 'rgba(0,0,0,0.05)', borderRadius: '3px', whiteSpace: 'pre-wrap', fontSize: '0.9em', border: '1px solid rgba(0,0,0,0.1)' }}>{res.output}</pre>
+                    </>
+                  )}
                 </div>
               </div>
             ))}
