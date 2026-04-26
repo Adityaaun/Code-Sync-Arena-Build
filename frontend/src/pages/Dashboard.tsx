@@ -36,82 +36,66 @@ const Dashboard: React.FC = () => {
       flexDirection: 'column',
       justifyContent: 'center',
       alignItems: 'center',
-      background: 'radial-gradient(circle at top right, #1e293b, #0f172a)',
-      padding: '20px'
+      backgroundColor: 'var(--bg-dark)',
+      padding: '24px'
     }}>
-      <div className="animate-fade" style={{ width: '100%', maxWidth: '900px', textAlign: 'center' }}>
-        <h1 style={{ fontSize: '3.5em', fontWeight: '800', marginBottom: '10px', background: 'linear-gradient(to right, #3b82f6, #60a5fa)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+      <div style={{ width: '100%', maxWidth: '400px', textAlign: 'center' }}>
+        <h1 style={{ fontSize: '24px', fontWeight: '600', marginBottom: '8px', color: 'white' }}>
           CodeSync Arena
         </h1>
-        <p style={{ color: 'var(--text-sec)', fontSize: '1.2em', marginBottom: '50px' }}>
-          Real-time coding battles. Prove your skills against the world.
+        <p style={{ color: 'var(--text-sec)', fontSize: '14px', marginBottom: '32px' }}>
+          Real-time coding battles for developers.
         </p>
 
         {error && (
-          <div style={{ padding: '12px', backgroundColor: 'rgba(239, 68, 68, 0.1)', border: '1px solid var(--danger)', color: 'var(--danger)', borderRadius: '8px', marginBottom: '20px' }}>
+          <div style={{ padding: '10px', backgroundColor: 'rgba(220, 38, 38, 0.1)', border: '1px solid var(--danger)', color: 'var(--danger)', borderRadius: '4px', marginBottom: '16px', fontSize: '13px' }}>
             {error}
           </div>
         )}
 
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1px 1fr', gap: '40px', alignItems: 'center' }}>
-          {/* Create Card */}
-          <div className="premium-card" style={{ padding: '40px' }}>
-            <div style={{ fontSize: '3em', marginBottom: '20px' }}>⚔️</div>
-            <h3 style={{ fontSize: '1.5em', marginBottom: '15px' }}>Start a Battle</h3>
-            <p style={{ color: 'var(--text-sec)', marginBottom: '30px', fontSize: '0.9em' }}>
-              Create a private room and invite an opponent to compete.
-            </p>
+        <div className="minimal-panel" style={{ padding: '24px', textAlign: 'left', marginBottom: '24px' }}>
+          <div style={{ marginBottom: '24px' }}>
             <button 
               onClick={handleCreateRoom}
-              className="premium-button"
-              style={{ width: '100%', padding: '15px', backgroundColor: 'var(--primary)', color: 'white' }}
+              className="minimal-button"
+              style={{ width: '100%', backgroundColor: 'var(--primary)', color: 'white' }}
             >
-              Create Battle
+              Create New Battle
             </button>
           </div>
 
-          <div style={{ height: '200px', backgroundColor: 'var(--border)' }}></div>
+          <div style={{ height: '1px', backgroundColor: 'var(--border)', marginBottom: '24px' }}></div>
 
-          {/* Join Card */}
-          <div className="premium-card" style={{ padding: '40px' }}>
-            <div style={{ fontSize: '3em', marginBottom: '20px' }}>🔗</div>
-            <h3 style={{ fontSize: '1.5em', marginBottom: '15px' }}>Join Battle</h3>
-            <p style={{ color: 'var(--text-sec)', marginBottom: '30px', fontSize: '0.9em' }}>
-              Enter a Room ID to join an existing coding battle.
-            </p>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+          <div>
+            <label style={{ display: 'block', fontSize: '12px', color: 'var(--text-sec)', marginBottom: '8px', textTransform: 'uppercase', fontWeight: 'bold' }}>Join existing battle</label>
+            <div style={{ display: 'flex', gap: '8px' }}>
               <input 
                 type="text" 
-                placeholder="Enter Room ID" 
+                placeholder="Room ID" 
                 value={roomIdInput}
                 onChange={(e) => setRoomIdInput(e.target.value)}
-                style={{ 
-                  padding: '14px', 
-                  backgroundColor: 'var(--panel-light)', 
-                  border: '1px solid var(--border)', 
-                  borderRadius: '8px',
-                  color: 'white',
-                  outline: 'none'
-                }}
+                className="minimal-input"
+                style={{ flexGrow: 1 }}
               />
               <button 
                 onClick={handleJoinRoom}
-                className="premium-button"
-                style={{ width: '100%', padding: '15px', backgroundColor: 'var(--success)', color: 'white' }}
+                className="minimal-button"
+                style={{ backgroundColor: 'var(--success)', color: 'white' }}
               >
-                Join Now
+                Join
               </button>
             </div>
           </div>
         </div>
 
-        <div style={{ marginTop: '60px', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '20px' }}>
-          <span style={{ color: 'var(--text-sec)' }}>Signed in as <strong>{user?.username}</strong></span>
+        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '12px', fontSize: '13px' }}>
+          <span style={{ color: 'var(--text-sec)' }}>{user?.username}</span>
+          <div style={{ width: '1px', height: '12px', backgroundColor: 'var(--border)' }}></div>
           <button 
             onClick={logout}
-            style={{ background: 'none', border: 'none', color: 'var(--primary)', cursor: 'pointer', fontWeight: 'bold' }}
+            style={{ background: 'none', border: 'none', color: 'var(--text-sec)', cursor: 'pointer', textDecoration: 'underline', padding: 0 }}
           >
-            Sign Out
+            Sign out
           </button>
         </div>
       </div>
