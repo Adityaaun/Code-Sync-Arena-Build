@@ -36,68 +36,82 @@ const Dashboard: React.FC = () => {
       flexDirection: 'column',
       justifyContent: 'center',
       alignItems: 'center',
-      backgroundColor: 'var(--bg-dark)',
-      padding: '24px'
+      padding: '40px'
     }}>
-      <div style={{ width: '100%', maxWidth: '400px', textAlign: 'center' }}>
-        <h1 style={{ fontSize: '24px', fontWeight: '600', marginBottom: '8px', color: 'white' }}>
+      {/* Brand Section */}
+      <div style={{ textAlign: 'center', marginBottom: '64px' }}>
+        <h1 style={{ fontSize: '48px', fontWeight: '800', marginBottom: '12px', color: 'white', letterSpacing: '-0.02em' }}>
           CodeSync Arena
         </h1>
-        <p style={{ color: 'var(--text-sec)', fontSize: '14px', marginBottom: '32px' }}>
-          Real-time coding battles for developers.
+        <p style={{ color: 'var(--text-sec)', fontSize: '18px', fontWeight: '400' }}>
+          Real-time coding battles. Build, sync, and compete.
         </p>
+      </div>
 
-        {error && (
-          <div style={{ padding: '10px', backgroundColor: 'rgba(220, 38, 38, 0.1)', border: '1px solid var(--danger)', color: 'var(--danger)', borderRadius: '4px', marginBottom: '16px', fontSize: '13px' }}>
-            {error}
-          </div>
-        )}
-
-        <div className="minimal-panel" style={{ padding: '24px', textAlign: 'left', marginBottom: '24px' }}>
-          <div style={{ marginBottom: '24px' }}>
-            <button 
-              onClick={handleCreateRoom}
-              className="minimal-button"
-              style={{ width: '100%', backgroundColor: 'var(--primary)', color: 'white' }}
-            >
-              Create New Battle
-            </button>
-          </div>
-
-          <div style={{ height: '1px', backgroundColor: 'var(--border)', marginBottom: '24px' }}></div>
-
-          <div>
-            <label style={{ display: 'block', fontSize: '12px', color: 'var(--text-sec)', marginBottom: '8px', textTransform: 'uppercase', fontWeight: 'bold' }}>Join existing battle</label>
-            <div style={{ display: 'flex', gap: '8px' }}>
-              <input 
-                type="text" 
-                placeholder="Room ID" 
-                value={roomIdInput}
-                onChange={(e) => setRoomIdInput(e.target.value)}
-                className="minimal-input"
-                style={{ flexGrow: 1 }}
-              />
-              <button 
-                onClick={handleJoinRoom}
-                className="minimal-button"
-                style={{ backgroundColor: 'var(--success)', color: 'white' }}
-              >
-                Join
-              </button>
-            </div>
-          </div>
+      {error && (
+        <div style={{ padding: '12px 24px', backgroundColor: 'rgba(220, 38, 38, 0.1)', border: '1px solid var(--danger)', color: 'var(--danger)', borderRadius: '8px', marginBottom: '32px', fontSize: '14px' }}>
+          {error}
         </div>
+      )}
 
-        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '12px', fontSize: '13px' }}>
-          <span style={{ color: 'var(--text-sec)' }}>{user?.username}</span>
-          <div style={{ width: '1px', height: '12px', backgroundColor: 'var(--border)' }}></div>
+      {/* Action Panels */}
+      <div style={{ 
+        display: 'grid', 
+        gridTemplateColumns: 'repeat(2, 1fr)', 
+        gap: '24px', 
+        width: '100%', 
+        maxWidth: '850px' 
+      }}>
+        {/* Create Panel */}
+        <div className="balanced-panel">
+          <h3 style={{ fontSize: '20px', fontWeight: '700', marginBottom: '16px', color: 'white' }}>Host a Battle</h3>
+          <p style={{ color: 'var(--text-sec)', fontSize: '14px', lineHeight: '1.6', marginBottom: '32px' }}>
+            Start a new private match. You'll get a unique Room ID to share with your opponent.
+          </p>
           <button 
-            onClick={logout}
-            style={{ background: 'none', border: 'none', color: 'var(--text-sec)', cursor: 'pointer', textDecoration: 'underline', padding: 0 }}
+            onClick={handleCreateRoom}
+            className="balanced-button"
+            style={{ width: '100%', backgroundColor: 'var(--primary)', color: 'white' }}
           >
-            Sign out
+            Create New Battle
           </button>
         </div>
+
+        {/* Join Panel */}
+        <div className="balanced-panel">
+          <h3 style={{ fontSize: '20px', fontWeight: '700', marginBottom: '16px', color: 'white' }}>Join a Battle</h3>
+          <p style={{ color: 'var(--text-sec)', fontSize: '14px', lineHeight: '1.6', marginBottom: '16px' }}>
+            Have a Room ID? Paste it below to enter the arena and start the match.
+          </p>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            <input 
+              type="text" 
+              placeholder="Enter Room ID..." 
+              value={roomIdInput}
+              onChange={(e) => setRoomIdInput(e.target.value)}
+              className="balanced-input"
+            />
+            <button 
+              onClick={handleJoinRoom}
+              className="balanced-button"
+              style={{ width: '100%', backgroundColor: 'var(--success)', color: 'white' }}
+            >
+              Enter Arena
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Footer Info */}
+      <div style={{ marginTop: '64px', display: 'flex', alignItems: 'center', gap: '16px', fontSize: '14px' }}>
+        <span style={{ color: 'var(--text-sec)' }}>Authenticated as <strong>{user?.username}</strong></span>
+        <div style={{ width: '1px', height: '16px', backgroundColor: 'var(--border)' }}></div>
+        <button 
+          onClick={logout}
+          style={{ background: 'none', border: 'none', color: 'var(--primary)', cursor: 'pointer', fontWeight: '600', padding: 0 }}
+        >
+          Sign Out
+        </button>
       </div>
     </div>
   );
