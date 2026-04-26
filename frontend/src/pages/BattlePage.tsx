@@ -38,6 +38,7 @@ const BattlePage: React.FC = () => {
   const [isRunning, setIsRunning] = useState<boolean>(false);
   const [testResults, setTestResults] = useState<TestResult[]>([]);
   const [winner, setWinner] = useState<string | null>(null);
+  const [systemError, setSystemError] = useState<string | null>(null);
 
   const sampleProblem = {
     title: 'Two Sum',
@@ -84,21 +85,22 @@ const BattlePage: React.FC = () => {
         }
       });
 
-      socket.on('result_update', ({ userId, results, allPassed }: { userId: string, results: TestResult[], allPassed: boolean }) => {
+      socket.on('result_update', ({ userId, results }: { userId: string, results: TestResult[] }) => {
         if (userId === user.id) {
           setTestResults(results);
           setIsRunning(false);
+          setSystemError(null);
         }
       });
 
       socket.on('match_ended', ({ winnerId }: { winnerId: string }) => {
         setWinner(winnerId);
         setStatus('Match Finished');
-        setIsRunning(false); // Stop loading if running
+        setIsRunning(false);
       });
 
       socket.on('error', ({ message }: { message: string }) => {
-        alert(message);
+        setSystemError(message);
         setIsRunning(false);
       });
 
@@ -127,11 +129,13 @@ const BattlePage: React.FC = () => {
     if (!socket || !user || !roomId || winner || isRunning) return;
     setIsRunning(true);
     setTestResults([]);
+    setSystemError(null);
     socket.emit('run_code', { roomId, userId: user.id, code: myCode, language });
   };
 
   return (
     <div style={{ height: '100vh', display: 'flex', flexDirection: 'column', position: 'relative', fontFamily: 'sans-serif' }}>
+      {/* Winner Overlay */}
       {winner && (
         <div style={{
           position: 'absolute', top: 0, left: 0, width: '100%', height: '100%',
@@ -150,6 +154,7 @@ const BattlePage: React.FC = () => {
         </div>
       )}
 
+      {/* Header */}
       <div style={{ padding: '10px 20px', borderBottom: '1px solid #ddd', display: 'flex', justifyContent: 'space-between', alignItems: 'center', backgroundColor: '#fff' }}>
         <div>
           <h4 style={{ margin: 0 }}>Room: {roomId}</h4>
@@ -173,7 +178,9 @@ const BattlePage: React.FC = () => {
         </div>
       </div>
 
+      {/* Main Content */}
       <div style={{ flexGrow: 1, display: 'flex', overflow: 'hidden' }}>
+        {/* Left Panel: Problem & Results */}
         <div style={{ width: '40%', height: '100%', display: 'flex', flexDirection: 'column' }}>
           <div style={{ flexGrow: 1, overflowY: 'auto' }}>
             <ProblemPanel 
@@ -183,10 +190,19 @@ const BattlePage: React.FC = () => {
             />
           </div>
           
+          {/* Results Section */}
           <div style={{ height: '35%', borderTop: '2px solid #ddd', padding: '15px', backgroundColor: '#fff', overflowY: 'auto' }}>
             <h4 style={{ marginTop: 0 }}>Test Results</h4>
-            {testResults.length === 0 && !isRunning && <p style={{ color: '#888' }}>Run your code to see results.</p>}
+            
+            {systemError && (
+              <div style={{ padding: '10px', backgroundColor: '#fff5f5', border: '1px solid #feb2b2', color: '#c53030', borderRadius: '4px', marginBottom: '10px' }}>
+                <strong>System Error:</strong> {systemError}
+              </div>
+            )}
+
+            {testResults.length === 0 && !isRunning && !systemError && <p style={{ color: '#888' }}>Run your code to see results.</p>}
             {isRunning && <p>Executing test cases on Judge0...</p>}
+            
             {testResults.map((res, index) => (
               <div key={index} style={{ marginBottom: '10px', padding: '10px', borderRadius: '4px', backgroundColor: res.passed ? '#e6fffa' : '#fff5f5', border: `1px solid ${res.passed ? '#38b2ac' : '#feb2b2'}` }}>
                 <strong>Test Case {index + 1}: {res.passed ? '✅ Passed' : '❌ Failed'}</strong>
@@ -204,6 +220,7 @@ const BattlePage: React.FC = () => {
           </div>
         </div>
 
+        {/* Right Panel: Editors */}
         <div style={{ width: '60%', display: 'flex', flexDirection: 'column', height: '100%' }}>
           <div style={{ height: '70%', borderBottom: '4px solid #ddd' }}>
             <CodeEditor 
