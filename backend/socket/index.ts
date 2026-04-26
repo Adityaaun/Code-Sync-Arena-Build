@@ -1,6 +1,8 @@
 import { Server, Socket } from 'socket.io';
 import { Server as HttpServer } from 'http';
 import Room from '../models/Room';
+import { runCode } from '../services/judge0Service';
+import { problems } from '../services/problems';
 
 export const initSocket = (server: HttpServer) => {
   const io = new Server(server, {
@@ -22,10 +24,7 @@ export const initSocket = (server: HttpServer) => {
     });
 
     socket.on('code_change', async ({ roomId, userId, code }) => {
-      // Broadcast to others in the room immediately for smooth UI
       socket.to(roomId).emit('code_change', { userId, code });
-
-      // Save to DB in background (last-write-wins)
       try {
         await Room.findOneAndUpdate(
           { roomId },
@@ -33,6 +32,34 @@ export const initSocket = (server: HttpServer) => {
         );
       } catch (err) {
         console.error('Error saving code:', err);
+      }
+    });
+
+    socket.on('run_code', async ({ roomId, userId, code, language }) => {
+      const problem = problems['two-sum']; // Static for now
+      const testResults = [];
+      let allPassed = true;
+
+      try {
+        for (const testCase of problem.testCases) {
+          const result = await runCode(code, language, testCase.input);
+          const passed = result.stdout.trim() === testCase.output.trim();
+          if (!passed) allPassed = false;
+          
+          testResults.push({
+            passed,
+            output: result.stdout || result.stderr || result.compile_output,
+            status: result.status
+          });
+        }
+
+        io.to(roomId).emit('result_update', {
+          userId,
+          results: testResults,
+          allPassed
+        });
+      } catch (error) {
+        socket.emit('error', { message: 'Code execution failed' });
       }
     });
 
