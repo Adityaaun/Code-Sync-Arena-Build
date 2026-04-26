@@ -1,10 +1,6 @@
 import axios from 'axios';
-import dotenv from 'dotenv';
 
-dotenv.config();
-
-const JUDGE0_URL = 'https://judge0-ce.p.rapidapi.com/submissions';
-const RAPIDAPI_HOST = 'judge0-ce.p.rapidapi.com';
+const JUDGE0_URL = 'https://ce.judge0.com/submissions';
 
 const languageMap: Record<string, number> = {
   javascript: 63,
@@ -33,9 +29,7 @@ export const runCode = async (code: string, language: string, stdin: string): Pr
       },
       {
         headers: {
-          'content-type': 'application/json',
-          'X-RapidAPI-Key': (process.env.RAPIDAPI_KEY || '').trim(),
-          'X-RapidAPI-Host': RAPIDAPI_HOST,
+          'Content-Type': 'application/json',
         },
       }
     );
