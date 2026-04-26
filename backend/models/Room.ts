@@ -8,6 +8,7 @@ const roomSchema = new mongoose.Schema({
     enum: ['waiting', 'active', 'finished'], 
     default: 'waiting' 
   },
+  winner: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
   codes: {
     type: Map,
     of: String,

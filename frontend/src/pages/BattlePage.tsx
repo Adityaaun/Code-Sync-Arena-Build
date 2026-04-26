@@ -30,6 +30,7 @@ const BattlePage: React.FC = () => {
   const [language, setLanguage] = useState('javascript');
   const [isRunning, setIsRunning] = useState(false);
   const [testResults, setTestResults] = useState<any[]>([]);
+  const [winner, setWinner] = useState<string | null>(null);
 
   const sampleProblem = {
     title: 'Two Sum',
@@ -47,6 +48,9 @@ const BattlePage: React.FC = () => {
         setRoom(response.data);
         if (response.data.status === 'active') {
           setStatus('Battle Active!');
+        } else if (response.data.status === 'finished') {
+          setStatus('Match Finished');
+          setWinner(response.data.winner);
         } else {
           setStatus('Waiting for opponent...');
         }
@@ -76,45 +80,81 @@ const BattlePage: React.FC = () => {
         if (userId === user.id) {
           setTestResults(results);
           setIsRunning(false);
-          if (allPassed) {
-            alert('Congratulations! All test cases passed!');
-          }
         }
+      });
+
+      socket.on('match_ended', ({ winnerId }) => {
+        setWinner(winnerId);
+        setStatus('Match Finished');
       });
 
       return () => {
         socket.off('opponent_joined');
         socket.off('code_change');
         socket.off('result_update');
+        socket.off('match_ended');
       };
     }
   }, [socket, user, roomId]);
 
+  // Debounced code emission
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      if (socket && user && roomId && !winner && myCode !== '// Write your code here\n') {
+        socket.emit('code_change', { roomId, userId: user.id, code: myCode });
+      }
+    }, 300);
+
+    return () => clearTimeout(timeout);
+  }, [myCode, socket, user, roomId, winner]);
+
   const handleRunCode = () => {
-    if (!socket || !user || !roomId) return;
+    if (!socket || !user || !roomId || winner) return;
     setIsRunning(true);
     setTestResults([]);
     socket.emit('run_code', { roomId, userId: user.id, code: myCode, language });
   };
 
   return (
-    <div style={{ height: '100vh', display: 'flex', flexDirection: 'column' }}>
+    <div style={{ height: '100vh', display: 'flex', flexDirection: 'column', position: 'relative' }}>
+      {/* Winner Overlay */}
+      {winner && (
+        <div style={{
+          position: 'absolute', top: 0, left: 0, width: '100%', height: '100%',
+          backgroundColor: 'rgba(0,0,0,0.7)', display: 'flex', flexDirection: 'column',
+          justifyContent: 'center', alignItems: 'center', zIndex: 1000, color: 'white'
+        }}>
+          <h1 style={{ fontSize: '4em', marginBottom: '20px' }}>
+            {winner === user?.id ? '🏆 YOU WON!' : '💀 YOU LOST'}
+          </h1>
+          <button 
+            onClick={() => window.location.href = '/'}
+            style={{ padding: '15px 30px', fontSize: '1.2em', cursor: 'pointer', borderRadius: '8px', border: 'none', backgroundColor: '#007bff', color: 'white' }}
+          >
+            Back to Dashboard
+          </button>
+        </div>
+      )}
+
       {/* Header */}
       <div style={{ padding: '10px 20px', borderBottom: '1px solid #ddd', display: 'flex', justifyContent: 'space-between', alignItems: 'center', backgroundColor: '#fff' }}>
         <div>
           <h4 style={{ margin: 0 }}>Room: {roomId}</h4>
           <span style={{ fontSize: '0.8em', color: '#666' }}>{status}</span>
         </div>
-        <Timer initialSeconds={1800} />
+        {!winner ? <Timer initialSeconds={1800} /> : <div style={{ fontWeight: 'bold' }}>Match Ended</div>}
         <div style={{ display: 'flex', gap: '10px' }}>
           <button 
             onClick={handleRunCode}
-            disabled={isRunning}
-            style={{ padding: '8px 16px', backgroundColor: '#007bff', color: '#fff', border: 'none', borderRadius: '4px', cursor: isRunning ? 'not-allowed' : 'pointer' }}
+            disabled={isRunning || !!winner}
+            style={{ padding: '8px 16px', backgroundColor: '#007bff', color: '#fff', border: 'none', borderRadius: '4px', cursor: (isRunning || winner) ? 'not-allowed' : 'pointer' }}
           >
             {isRunning ? 'Running...' : 'Run Code'}
           </button>
-          <button style={{ padding: '8px 16px', backgroundColor: '#28a745', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' }}>
+          <button 
+            disabled={!!winner}
+            style={{ padding: '8px 16px', backgroundColor: '#28a745', color: '#fff', border: 'none', borderRadius: '4px', cursor: winner ? 'not-allowed' : 'pointer', fontWeight: 'bold' }}
+          >
             Submit Solution
           </button>
         </div>
@@ -157,6 +197,7 @@ const BattlePage: React.FC = () => {
               onChange={(val) => setMyCode(val || '')}
               language={language}
               setLanguage={setLanguage}
+              isReadOnly={!!winner}
             />
           </div>
           <div style={{ height: '30%' }}>

@@ -36,9 +36,13 @@ export const initSocket = (server: HttpServer) => {
     });
 
     socket.on('run_code', async ({ roomId, userId, code, language }) => {
-      const problem = problems['two-sum']; // Static for now
+      const problem = problems['two-sum'];
       const testResults = [];
       let allPassed = true;
+
+      // Check if room is already finished
+      const currentRoom = await Room.findOne({ roomId });
+      if (currentRoom?.status === 'finished') return;
 
       try {
         for (const testCase of problem.testCases) {
@@ -53,11 +57,28 @@ export const initSocket = (server: HttpServer) => {
           });
         }
 
-        io.to(roomId).emit('result_update', {
+        // Emit results to the user
+        socket.emit('result_update', {
           userId,
           results: testResults,
           allPassed
         });
+
+        // Atomic Winner Logic
+        if (allPassed) {
+          const updatedRoom = await Room.findOneAndUpdate(
+            { roomId, status: 'active', winner: { $exists: false } },
+            { $set: { status: 'finished', winner: userId } },
+            { new: true }
+          );
+
+          if (updatedRoom) {
+            io.to(roomId).emit('match_ended', {
+              winnerId: userId,
+              status: 'finished'
+            });
+          }
+        }
       } catch (error) {
         socket.emit('error', { message: 'Code execution failed' });
       }
