@@ -198,9 +198,9 @@ const BattlePage: React.FC = () => {
       </header>
 
       {/* Main Resizable Body */}
-      <main style={{ flexGrow: 1, display: 'flex', overflow: 'hidden', width: '100%' }}>
+      <main style={{ flexGrow: 1, display: 'flex', overflow: 'hidden', width: '100%', margin: 0, padding: 0 }}>
         {/* Left Side: Problem & Results */}
-        <div style={{ width: `${leftWidth}%`, display: 'flex', flexDirection: 'column', height: '100%', borderRight: '1px solid var(--border)' }}>
+        <div style={{ flex: `0 0 ${leftWidth}%`, display: 'flex', flexDirection: 'column', height: '100%', borderRight: '1px solid var(--border)', margin: 0, padding: 0 }}>
           <div style={{ flexGrow: 1, overflow: 'hidden' }}>
             <ProblemPanel {...sampleProblem} />
           </div>
@@ -239,11 +239,11 @@ const BattlePage: React.FC = () => {
         ></div>
 
         {/* Right Side: Editors */}
-        <div style={{ flexGrow: 1, display: 'flex', flexDirection: 'column', height: '100%' }}>
-          <div style={{ height: `${editorHeight}%`, borderBottom: '1px solid var(--border)' }}>
+        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', height: '100%', margin: 0, padding: 0 }}>
+          <div style={{ flex: `0 0 ${editorHeight}%`, borderBottom: '1px solid var(--border)' }}>
             <CodeEditor label="My Solution" code={myCode} onChange={(v) => setMyCode(v || '')} language={language} setLanguage={setLanguage} isReadOnly={!!winner} />
           </div>
-          <div style={{ flexGrow: 1 }}>
+          <div style={{ flex: 1 }}>
             <CodeEditor label="Opponent" code={opponentCode} onChange={() => {}} language={language} setLanguage={() => {}} isReadOnly={true} />
           </div>
         </div>
