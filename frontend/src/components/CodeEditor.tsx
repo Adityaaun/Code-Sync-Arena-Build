@@ -16,32 +16,31 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ code, onChange, language, setLa
       height: '100%', 
       display: 'flex', 
       flexDirection: 'column',
-      borderRadius: '8px',
-      overflow: 'hidden',
-      border: '1px solid #e2e8f0',
-      boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+      backgroundColor: 'var(--panel-bg)'
     }}>
       <div style={{ 
-        padding: '10px 16px', 
-        backgroundColor: '#edf2f7', 
-        borderBottom: '1px solid #e2e8f0', 
+        padding: '8px 16px', 
+        backgroundColor: '#161e31', 
+        borderBottom: '1px solid var(--border)', 
         display: 'flex', 
         justifyContent: 'space-between', 
         alignItems: 'center' 
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          {label && <span style={{ fontWeight: 'bold', fontSize: '0.85em', color: '#4a5568' }}>{label.toUpperCase()}</span>}
+          {label && <span style={{ fontWeight: '800', fontSize: '11px', color: 'var(--text-sec)', letterSpacing: '0.05em' }}>{label.toUpperCase()}</span>}
           {!isReadOnly && (
             <select 
               value={language} 
               onChange={(e) => setLanguage(e.target.value)}
               style={{ 
-                padding: '4px 8px', 
+                padding: '2px 6px', 
                 borderRadius: '4px',
-                border: '1px solid #cbd5e0',
-                fontSize: '0.85em',
-                backgroundColor: 'white',
-                outline: 'none'
+                border: '1px solid var(--border)',
+                fontSize: '11px',
+                backgroundColor: 'var(--bg-dark)',
+                color: 'var(--text-main)',
+                outline: 'none',
+                cursor: 'pointer'
               }}
             >
               <option value="javascript">JavaScript</option>
@@ -51,7 +50,7 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ code, onChange, language, setLa
             </select>
           )}
         </div>
-        {isReadOnly && <span style={{ color: '#718096', fontSize: '0.75em', fontStyle: 'italic' }}>READ-ONLY VIEW</span>}
+        {isReadOnly && <span style={{ color: '#4b5563', fontSize: '10px', fontWeight: 'bold' }}>READ-ONLY</span>}
       </div>
       <div style={{ flexGrow: 1 }}>
         <Editor
@@ -59,14 +58,15 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ code, onChange, language, setLa
           language={language === 'cpp' ? 'cpp' : language}
           value={code}
           onChange={onChange}
-          theme="vs-light"
+          theme="vs-dark"
           options={{
             readOnly: isReadOnly,
             minimap: { enabled: false },
             fontSize: 14,
             scrollBeyondLastLine: false,
             automaticLayout: true,
-            padding: { top: 10, bottom: 10 }
+            padding: { top: 10, bottom: 10 },
+            backgroundColor: '#0b1220'
           }}
         />
       </div>

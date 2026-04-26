@@ -198,10 +198,10 @@ const BattlePage: React.FC = () => {
       </header>
 
       {/* Main Resizable Body */}
-      <main style={{ flexGrow: 1, display: 'flex', overflow: 'hidden' }}>
+      <main style={{ flexGrow: 1, display: 'flex', overflow: 'hidden', width: '100%' }}>
         {/* Left Side: Problem & Results */}
-        <div style={{ width: `${leftWidth}%`, display: 'flex', flexDirection: 'column', height: '100%' }}>
-          <div style={{ flexGrow: 1, overflow: 'hidden', padding: '8px 0 0 8px' }}>
+        <div style={{ width: `${leftWidth}%`, display: 'flex', flexDirection: 'column', height: '100%', borderRight: '1px solid var(--border)' }}>
+          <div style={{ flexGrow: 1, overflow: 'hidden' }}>
             <ProblemPanel {...sampleProblem} />
           </div>
           
@@ -212,8 +212,8 @@ const BattlePage: React.FC = () => {
             title="Double click to reset layout"
           ></div>
           
-          <div style={{ height: `${100 - editorHeight}%`, padding: '0 0 8px 8px', overflowY: 'auto' }}>
-            <div className="balanced-panel" style={{ height: '100%', padding: '16px', overflowY: 'auto', borderRadius: '8px' }}>
+          <div style={{ height: `${100 - editorHeight}%`, overflowY: 'auto', borderTop: '1px solid var(--border)' }}>
+            <div style={{ height: '100%', padding: '16px', overflowY: 'auto', backgroundColor: 'var(--panel-bg)' }}>
               <h4 style={{ margin: '0 0 12px 0', color: 'var(--text-sec)', fontSize: '11px', textTransform: 'uppercase', fontWeight: '800' }}>Test Results</h4>
               {systemError && <div style={{ color: 'var(--danger)', fontSize: '13px', marginBottom: '12px' }}>{systemError}</div>}
               {testResults.map((res, i) => (
@@ -239,8 +239,8 @@ const BattlePage: React.FC = () => {
         ></div>
 
         {/* Right Side: Editors */}
-        <div style={{ flexGrow: 1, display: 'flex', flexDirection: 'column', height: '100%', padding: '8px' }}>
-          <div style={{ height: `${editorHeight}%`, marginBottom: '8px' }}>
+        <div style={{ flexGrow: 1, display: 'flex', flexDirection: 'column', height: '100%' }}>
+          <div style={{ height: `${editorHeight}%`, borderBottom: '1px solid var(--border)' }}>
             <CodeEditor label="My Solution" code={myCode} onChange={(v) => setMyCode(v || '')} language={language} setLanguage={setLanguage} isReadOnly={!!winner} />
           </div>
           <div style={{ flexGrow: 1 }}>
