@@ -8,16 +8,47 @@ interface CodeEditorProps {
   setLanguage: (lang: string) => void;
   isReadOnly?: boolean;
   label?: string;
+  isBlurred?: boolean;
 }
 
-const CodeEditor: React.FC<CodeEditorProps> = ({ code, onChange, language, setLanguage, isReadOnly = false, label }) => {
+const CodeEditor: React.FC<CodeEditorProps> = ({ code, onChange, language, setLanguage, isReadOnly = false, label, isBlurred = false }) => {
   return (
     <div style={{ 
       height: '100%', 
       display: 'flex', 
       flexDirection: 'column',
-      backgroundColor: 'var(--panel-bg)'
+      backgroundColor: 'var(--panel-bg)',
+      position: 'relative'
     }}>
+      {isBlurred && (
+        <div style={{
+          position: 'absolute',
+          top: '36px', // height of header
+          left: 0,
+          right: 0,
+          bottom: 0,
+          zIndex: 10,
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          backgroundColor: 'rgba(11, 18, 32, 0.4)',
+          backdropFilter: 'blur(8px)',
+          pointerEvents: 'none'
+        }}>
+          <div style={{
+            padding: '12px 24px',
+            backgroundColor: 'rgba(15, 23, 42, 0.8)',
+            border: '1px solid var(--border)',
+            borderRadius: '8px',
+            color: 'var(--text-sec)',
+            fontSize: '12px',
+            fontWeight: 'bold',
+            letterSpacing: '0.05em'
+          }}>
+            CODE HIDDEN DURING BATTLE
+          </div>
+        </div>
+      )}
       <div style={{ 
         padding: '8px 16px', 
         backgroundColor: '#161e31', 

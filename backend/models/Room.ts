@@ -13,7 +13,13 @@ const roomSchema = new mongoose.Schema({
     type: Map,
     of: String,
     default: {}
-  }
+  },
+  problemId: { type: mongoose.Schema.Types.ObjectId, ref: 'Problem' },
+  problemData: { type: Object }, // Cached version for socket performance
+  startTime: { type: Date }
 }, { timestamps: true });
+
+// Delete rooms after 2 hours (7200 seconds)
+roomSchema.index({ createdAt: 1 }, { expireAfterSeconds: 7200 });
 
 export default mongoose.model('Room', roomSchema);

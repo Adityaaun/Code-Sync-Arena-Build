@@ -6,16 +6,18 @@ import '../premium.css';
 
 const Dashboard: React.FC = () => {
   const [roomIdInput, setRoomIdInput] = useState('');
+  const [topic, setTopic] = useState('random');
+  const [difficulty, setDifficulty] = useState('random');
   const [error, setError] = useState('');
   const { logout, user } = useAuth();
   const navigate = useNavigate();
 
   const handleCreateRoom = async () => {
     try {
-      const response = await api.post('/room/create');
+      const response = await api.post('/room/create', { topic, difficulty });
       navigate(`/battle/${response.data.roomId}`);
     } catch (err: any) {
-      setError('Failed to create room');
+      setError(err.response?.data?.message || 'Failed to create room');
     }
   };
 
@@ -65,9 +67,44 @@ const Dashboard: React.FC = () => {
         {/* Create Panel */}
         <div className="balanced-panel">
           <h3 style={{ fontSize: '20px', fontWeight: '700', marginBottom: '16px', color: 'white' }}>Host a Battle</h3>
-          <p style={{ color: 'var(--text-sec)', fontSize: '14px', lineHeight: '1.6', marginBottom: '32px' }}>
-            Start a new private match. You'll get a unique Room ID to share with your opponent.
-          </p>
+          
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginBottom: '24px' }}>
+            <div style={{ display: 'flex', gap: '12px' }}>
+              <div style={{ flex: 1 }}>
+                <label style={{ display: 'block', fontSize: '11px', fontWeight: '800', color: 'var(--text-sec)', marginBottom: '6px', textTransform: 'uppercase' }}>Topic</label>
+                <select 
+                  value={topic}
+                  onChange={(e) => setTopic(e.target.value)}
+                  style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid var(--border)', backgroundColor: 'var(--bg-dark)', color: 'white', outline: 'none' }}
+                >
+                  <option value="random">Random</option>
+                  <option value="array">Arrays</option>
+                  <option value="string">Strings</option>
+                  <option value="dp">DP</option>
+                  <option value="graph">Graphs</option>
+                  <option value="math">Math</option>
+                  <option value="stack">Stack</option>
+                  <option value="queue">Queue</option>
+                  <option value="linkedlist">Linked List</option>
+                  <option value="recursion">Recursion</option>
+                </select>
+              </div>
+              <div style={{ flex: 1 }}>
+                <label style={{ display: 'block', fontSize: '11px', fontWeight: '800', color: 'var(--text-sec)', marginBottom: '6px', textTransform: 'uppercase' }}>Level</label>
+                <select 
+                  value={difficulty}
+                  onChange={(e) => setDifficulty(e.target.value)}
+                  style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid var(--border)', backgroundColor: 'var(--bg-dark)', color: 'white', outline: 'none' }}
+                >
+                  <option value="random">Random</option>
+                  <option value="easy">Easy</option>
+                  <option value="medium">Medium</option>
+                  <option value="hard">Hard</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
           <button 
             onClick={handleCreateRoom}
             className="balanced-button"
