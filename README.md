@@ -2,7 +2,7 @@
 
 **CodeSync Arena** is a high-performance, real-time competitive coding platform where developers can engage in 1v1 battles. It combines a synchronized code editor with a powerful execution engine, allowing users to solve complex DSA problems while tracking their opponent's progress.
 
-![CodeSync Hero Placeholder](https://via.placeholder.com/800x450?text=CodeSync+Arena+Dashboard)
+![CodeSync Hero](./assets/hero.png)
 
 ## 🚀 Features
 - **Real-time Synchronization:** Collaborative coding with <300ms latency using Socket.io.
@@ -36,7 +36,7 @@ CodeSync follows a decoupled Client-Server architecture:
 ## 📸 Screenshots
 | Dashboard | Battle Arena |
 | :--- | :--- |
-| ![Dashboard Placeholder](https://via.placeholder.com/400x250?text=Dashboard+UI) | ![Arena Placeholder](https://via.placeholder.com/400x250?text=Battle+Arena+UI) |
+| ![Dashboard](./assets/dashboard.png) | ![Arena](./assets/arena.png) |
 
 ## ⚙️ Installation & Setup
 
@@ -46,8 +46,8 @@ CodeSync follows a decoupled Client-Server architecture:
 
 ### 1. Clone & Install
 ```bash
-git clone https://github.com/yourusername/code-sync.git
-cd code-sync
+git clone https://github.com/Adityaaun/Code-Sync-Arena-Build.git
+cd Code-Sync-Arena-Build
 
 # Install Backend
 cd backend && npm install
