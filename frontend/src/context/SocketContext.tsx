@@ -10,7 +10,7 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
 
   useEffect(() => {
     if (token) {
-      const newSocket = io('http://localhost:5000');
+      const newSocket = io(import.meta.env.VITE_SOCKET_URL || 'http://localhost:5000');
       setSocket(newSocket);
 
       return () => {

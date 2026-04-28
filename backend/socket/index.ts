@@ -2,11 +2,12 @@ import { Server, Socket } from 'socket.io';
 import { Server as HttpServer } from 'http';
 import Room from '../models/Room';
 import { runCode } from '../services/judge0Service';
+import { IJoinRoomPayload, ICodeChangePayload, IRunCodePayload, IProblem } from '../types';
 
 export const initSocket = (server: HttpServer) => {
   const io = new Server(server, {
     cors: {
-      origin: 'http://localhost:5173',
+      origin: process.env.FRONTEND_URL || 'http://localhost:5173',
       methods: ['GET', 'POST'],
     },
   });
@@ -14,7 +15,7 @@ export const initSocket = (server: HttpServer) => {
   const socketToUser = new Map<string, { userId: string, roomId: string }>();
 
   io.on('connection', (socket: Socket) => {
-    socket.on('join_room', async ({ roomId, userId }) => {
+    socket.on('join_room', async ({ roomId, userId }: IJoinRoomPayload) => {
       socket.join(roomId);
       socketToUser.set(socket.id, { userId, roomId });
 
@@ -26,7 +27,7 @@ export const initSocket = (server: HttpServer) => {
       socket.to(roomId).emit('opponent_joined', { userId });
     });
 
-    socket.on('code_change', async ({ roomId, userId, code }) => {
+    socket.on('code_change', async ({ roomId, userId, code }: ICodeChangePayload) => {
       socket.to(roomId).emit('code_change', { userId, code });
       try {
         await Room.findOneAndUpdate(
@@ -38,7 +39,7 @@ export const initSocket = (server: HttpServer) => {
       }
     });
 
-    socket.on('run_code', async ({ roomId, userId, code, language }) => {
+    socket.on('run_code', async ({ roomId, userId, code, language }: IRunCodePayload) => {
       try {
         const room = await Room.findOne({ roomId });
         if (!room || !room.problemData) {
@@ -46,7 +47,7 @@ export const initSocket = (server: HttpServer) => {
           return;
         }
 
-        const problem = room.problemData;
+        const problem = room.problemData as unknown as IProblem;
         const testResults = [];
         
         for (const testCase of problem.testCases) {
@@ -68,7 +69,7 @@ export const initSocket = (server: HttpServer) => {
       }
     });
 
-    socket.on('submit_code', async ({ roomId, userId, code, language }) => {
+    socket.on('submit_code', async ({ roomId, userId, code, language }: IRunCodePayload) => {
       try {
         socket.to(roomId).emit('opponent_submitting');
         const room = await Room.findOne({ roomId });
@@ -79,7 +80,7 @@ export const initSocket = (server: HttpServer) => {
 
         if (room.status === 'finished') return;
 
-        const problem = room.problemData;
+        const problem = room.problemData as unknown as IProblem;
         const testResults = [];
         let allPassed = true;
 
@@ -110,6 +111,7 @@ export const initSocket = (server: HttpServer) => {
         socket.emit('error', { message: 'Submission failed' });
       }
     });
+
 
     socket.on('disconnect', async () => {
       const session = socketToUser.get(socket.id);

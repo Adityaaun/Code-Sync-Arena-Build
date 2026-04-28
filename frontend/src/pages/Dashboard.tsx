@@ -9,27 +9,46 @@ const Dashboard: React.FC = () => {
   const [topic, setTopic] = useState('random');
   const [difficulty, setDifficulty] = useState('random');
   const [error, setError] = useState('');
+  const [isCreating, setIsCreating] = useState(false);
+  const [isJoining, setIsJoining] = useState(false);
   const { logout, user } = useAuth();
   const navigate = useNavigate();
 
   const handleCreateRoom = async () => {
+    setIsCreating(true);
+    setError('');
     try {
       const response = await api.post('/room/create', { topic, difficulty });
       navigate(`/battle/${response.data.roomId}`);
-    } catch (err: any) {
-      setError(err.response?.data?.message || 'Failed to create room');
+    } catch (err: unknown) {
+      let msg = 'Failed to create room';
+      if (err && typeof err === 'object' && 'response' in err) {
+        msg = (err as any).response?.data?.message || msg;
+      }
+      setError(msg);
+    } finally {
+      setIsCreating(false);
     }
   };
 
   const handleJoinRoom = async () => {
     if (!roomIdInput) return;
+    setIsJoining(true);
+    setError('');
     try {
       await api.post(`/room/join/${roomIdInput}`);
       navigate(`/battle/${roomIdInput}`);
-    } catch (err: any) {
-      setError(err.response?.data?.message || 'Failed to join room');
+    } catch (err: unknown) {
+      let msg = 'Failed to join room';
+      if (err && typeof err === 'object' && 'response' in err) {
+        msg = (err as any).response?.data?.message || msg;
+      }
+      setError(msg);
+    } finally {
+      setIsJoining(false);
     }
   };
+
 
   return (
     <div style={{ 
@@ -104,10 +123,11 @@ const Dashboard: React.FC = () => {
 
           <button 
             onClick={handleCreateRoom}
+            disabled={isCreating}
             className="balanced-button"
-            style={{ width: '100%', backgroundColor: 'var(--primary)', color: 'white' }}
+            style={{ width: '100%', backgroundColor: isCreating ? 'var(--border)' : 'var(--primary)', color: 'white' }}
           >
-            Create New Battle
+            {isCreating ? 'Creating Battle...' : 'Create New Battle'}
           </button>
         </div>
 
@@ -126,10 +146,11 @@ const Dashboard: React.FC = () => {
             />
             <button 
               onClick={handleJoinRoom}
+              disabled={isJoining}
               className="balanced-button"
-              style={{ width: '100%', backgroundColor: 'var(--success)', color: 'white' }}
+              style={{ width: '100%', backgroundColor: isJoining ? 'var(--border)' : 'var(--success)', color: 'white' }}
             >
-              Enter Arena
+              {isJoining ? 'Entering Arena...' : 'Enter Arena'}
             </button>
           </div>
         </div>

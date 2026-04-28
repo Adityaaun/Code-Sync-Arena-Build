@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useSocket } from '../context/SocketContext';
 import { useAuth } from '../context/AuthContext';
 import api from '../services/api';
+import type { IProblem } from '../types';
 import ProblemPanel from '../components/ProblemPanel';
 import CodeEditor from '../components/CodeEditor';
 import Timer from '../components/Timer';
@@ -19,7 +20,7 @@ const BattlePage: React.FC = () => {
   const socket = useSocket();
   const { user } = useAuth();
   
-  const [problem, setProblem] = useState<any>(null);
+  const [problem, setProblem] = useState<IProblem | null>(null);
   const [status, setStatus] = useState<string>('Connecting...');
   const [myCode, setMyCode] = useState<string>('// Write your code here\n');
   const [opponentCode, setOpponentCode] = useState<string>('// Opponent code will appear here\n');
@@ -135,8 +136,11 @@ const BattlePage: React.FC = () => {
       socket.emit('join_room', { roomId, userId: user.id });
       socket.on('connect', () => setIsConnected(true));
       socket.on('disconnect', () => setIsConnected(false));
-      socket.on('problem_assigned', (problemData: any) => {
+      socket.on('problem_assigned', (problemData: IProblem) => {
         setProblem(problemData);
+        if (problemData.starterCode && problemData.starterCode[language as keyof typeof problemData.starterCode]) {
+           setMyCode(problemData.starterCode[language as keyof typeof problemData.starterCode] as string);
+        }
       });
       socket.on('opponent_joined', () => {
         setStatus('Battle Active');

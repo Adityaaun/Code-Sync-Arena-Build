@@ -16,6 +16,11 @@ export const createRoom = async (req: AuthRequest, res: Response): Promise<void>
       return;
     }
 
+    if (!req.userId) {
+      res.status(401).json({ message: 'Unauthorized' });
+      return;
+    }
+
     const room = new Room({
       roomId,
       players: [req.userId],
@@ -25,10 +30,11 @@ export const createRoom = async (req: AuthRequest, res: Response): Promise<void>
     });
     await room.save();
     res.status(201).json(room);
-  } catch (error: any) {
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : 'Error creating room';
     console.error('Room creation error:', error);
     res.status(500).json({ 
-      message: error.message || 'Error creating room',
+      message: errorMessage,
       error: process.env.NODE_ENV === 'development' ? error : undefined
     });
   }
@@ -37,6 +43,13 @@ export const createRoom = async (req: AuthRequest, res: Response): Promise<void>
 export const joinRoom = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const { roomId } = req.params;
+    const { userId } = req;
+
+    if (!userId) {
+      res.status(401).json({ message: 'Unauthorized' });
+      return;
+    }
+
     const room = await Room.findOne({ roomId });
 
     if (!room) {
@@ -49,12 +62,12 @@ export const joinRoom = async (req: AuthRequest, res: Response): Promise<void> =
       return;
     }
 
-    if (room.players.includes(req.userId as any)) {
+    if (room.players.map(id => id.toString()).includes(userId)) {
       res.status(200).json(room);
       return;
     }
 
-    room.players.push(req.userId as any);
+    room.players.push(userId as any);
     if (room.players.length === 2) {
       room.status = 'active';
       room.startTime = new Date();

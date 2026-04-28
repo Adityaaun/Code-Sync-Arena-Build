@@ -42,8 +42,13 @@ export const runCode = async (code: string, language: string, stdin: string): Pr
       compile_output: compile_output || '',
       status: status.description
     };
-  } catch (error: any) {
-    const errorMsg = error.response?.data?.message || error.message || 'Unknown Judge0 Error';
+  } catch (error: unknown) {
+    let errorMsg = 'Unknown Judge0 Error';
+    if (axios.isAxiosError(error)) {
+      errorMsg = error.response?.data?.message || error.message;
+    } else if (error instanceof Error) {
+      errorMsg = error.message;
+    }
     console.error('Judge0 API Error:', errorMsg);
     throw new Error(`Code execution failed: ${errorMsg}`);
   }
