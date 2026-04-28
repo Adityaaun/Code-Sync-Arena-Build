@@ -40,7 +40,6 @@ const Dashboard: React.FC = () => {
       alignItems: 'center',
       padding: '40px'
     }}>
-      {/* Brand Section */}
       <div style={{ textAlign: 'center', marginBottom: '64px' }}>
         <h1 style={{ fontSize: '48px', fontWeight: '800', marginBottom: '12px', color: 'white', letterSpacing: '-0.02em' }}>
           CodeSync Arena
@@ -56,7 +55,6 @@ const Dashboard: React.FC = () => {
         </div>
       )}
 
-      {/* Action Panels */}
       <div style={{ 
         display: 'grid', 
         gridTemplateColumns: 'repeat(2, 1fr)', 
@@ -64,7 +62,6 @@ const Dashboard: React.FC = () => {
         width: '100%', 
         maxWidth: '850px' 
       }}>
-        {/* Create Panel */}
         <div className="balanced-panel">
           <h3 style={{ fontSize: '20px', fontWeight: '700', marginBottom: '16px', color: 'white' }}>Host a Battle</h3>
           
@@ -114,7 +111,6 @@ const Dashboard: React.FC = () => {
           </button>
         </div>
 
-        {/* Join Panel */}
         <div className="balanced-panel">
           <h3 style={{ fontSize: '20px', fontWeight: '700', marginBottom: '16px', color: 'white' }}>Join a Battle</h3>
           <p style={{ color: 'var(--text-sec)', fontSize: '14px', lineHeight: '1.6', marginBottom: '16px' }}>
@@ -139,7 +135,6 @@ const Dashboard: React.FC = () => {
         </div>
       </div>
 
-      {/* Footer Info */}
       <div style={{ marginTop: '64px', display: 'flex', alignItems: 'center', gap: '16px', fontSize: '14px' }}>
         <span style={{ color: 'var(--text-sec)' }}>Authenticated as <strong>{user?.username}</strong></span>
         <div style={{ width: '1px', height: '16px', backgroundColor: 'var(--border)' }}></div>

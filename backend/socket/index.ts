@@ -2,7 +2,6 @@ import { Server, Socket } from 'socket.io';
 import { Server as HttpServer } from 'http';
 import Room from '../models/Room';
 import { runCode } from '../services/judge0Service';
-import { problems } from '../services/problems';
 
 export const initSocket = (server: HttpServer) => {
   const io = new Server(server, {
@@ -15,20 +14,15 @@ export const initSocket = (server: HttpServer) => {
   const socketToUser = new Map<string, { userId: string, roomId: string }>();
 
   io.on('connection', (socket: Socket) => {
-    console.log('User connected:', socket.id);
-
     socket.on('join_room', async ({ roomId, userId }) => {
       socket.join(roomId);
       socketToUser.set(socket.id, { userId, roomId });
-      console.log(`User ${userId} joined room: ${roomId}`);
 
-      // Fetch room to send current problem data
       const room = await Room.findOne({ roomId });
       if (room && room.problemData) {
         socket.emit('problem_assigned', room.problemData);
       }
 
-      // Notify others in the room
       socket.to(roomId).emit('opponent_joined', { userId });
     });
 
@@ -56,7 +50,6 @@ export const initSocket = (server: HttpServer) => {
         const testResults = [];
         
         for (const testCase of problem.testCases) {
-          // Only run non-hidden test cases for "Run Code"
           if (testCase.isHidden) continue;
 
           const result = await runCode(code, language, testCase.input);
@@ -119,7 +112,6 @@ export const initSocket = (server: HttpServer) => {
     });
 
     socket.on('disconnect', async () => {
-      console.log('User disconnected:', socket.id);
       const session = socketToUser.get(socket.id);
 
       if (session) {
@@ -127,10 +119,8 @@ export const initSocket = (server: HttpServer) => {
         socketToUser.delete(socket.id);
 
         try {
-          // Check if the room was active
           const room = await Room.findOne({ roomId, status: 'active' });
           if (room && room.players.length === 2) {
-            // Find the opponent who is still in the room
             const opponentId = room.players.find(p => p.toString() !== userId);
 
             if (opponentId) {
@@ -153,3 +143,4 @@ export const initSocket = (server: HttpServer) => {
   });
   return io;
 };
+

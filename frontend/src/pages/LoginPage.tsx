@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import api from '../services/api';
 import { useAuth } from '../context/AuthContext';
+import '../premium.css';
 
 const LoginPage: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -22,39 +23,51 @@ const LoginPage: React.FC = () => {
   };
 
   return (
-    <div style={{ maxWidth: '400px', margin: '50px auto', padding: '20px', border: '1px solid #ccc', borderRadius: '8px' }}>
-      <h2>Login</h2>
-      {error && <p style={{ color: 'red' }}>{error}</p>}
-      <form onSubmit={handleSubmit}>
-        <div style={{ marginBottom: '15px' }}>
-          <label>Email:</label>
-          <input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-            style={{ width: '100%', padding: '8px', marginTop: '5px' }}
-          />
-        </div>
-        <div style={{ marginBottom: '15px' }}>
-          <label>Password:</label>
-          <input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-            style={{ width: '100%', padding: '8px', marginTop: '5px' }}
-          />
-        </div>
-        <button type="submit" style={{ width: '100%', padding: '10px', backgroundColor: '#007bff', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>
-          Login
-        </button>
-      </form>
-      <p style={{ marginTop: '15px' }}>
-        Don't have an account? <Link to="/register">Register here</Link>
-      </p>
+    <div style={{ minHeight: '100vh', display: 'flex', justifyContent: 'center', alignItems: 'center', padding: '20px' }}>
+      <div className="balanced-panel" style={{ width: '100%', maxWidth: '400px' }}>
+        <h2 style={{ fontSize: '24px', fontWeight: '800', marginBottom: '24px', textAlign: 'center' }}>Welcome Back</h2>
+        
+        {error && (
+          <div style={{ padding: '10px', backgroundColor: 'rgba(220, 38, 38, 0.1)', border: '1px solid var(--danger)', color: 'var(--danger)', borderRadius: '6px', marginBottom: '20px', fontSize: '14px', textAlign: 'center' }}>
+            {error}
+          </div>
+        )}
+
+        <form onSubmit={handleSubmit}>
+          <div style={{ marginBottom: '16px' }}>
+            <label style={{ fontSize: '11px', fontWeight: '800', color: 'var(--text-sec)', textTransform: 'uppercase', marginBottom: '6px', display: 'block' }}>Email Address</label>
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              className="balanced-input"
+              placeholder="name@example.com"
+            />
+          </div>
+          <div style={{ marginBottom: '24px' }}>
+            <label style={{ fontSize: '11px', fontWeight: '800', color: 'var(--text-sec)', textTransform: 'uppercase', marginBottom: '6px', display: 'block' }}>Password</label>
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              className="balanced-input"
+              placeholder="••••••••"
+            />
+          </div>
+          <button type="submit" className="balanced-button" style={{ width: '100%', backgroundColor: 'var(--primary)', color: 'white' }}>
+            Sign In
+          </button>
+        </form>
+        
+        <p style={{ marginTop: '24px', textAlign: 'center', fontSize: '14px', color: 'var(--text-sec)' }}>
+          Don't have an account? <Link to="/register" style={{ color: 'var(--primary)', fontWeight: '600', textDecoration: 'none' }}>Register here</Link>
+        </p>
+      </div>
     </div>
   );
 };
 
 export default LoginPage;
+

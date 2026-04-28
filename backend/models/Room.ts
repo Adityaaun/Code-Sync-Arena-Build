@@ -15,7 +15,7 @@ const roomSchema = new mongoose.Schema({
     default: {}
   },
   problemId: { type: mongoose.Schema.Types.ObjectId, ref: 'Problem' },
-  problemData: { type: Object }, // Cached version for socket performance
+  problemData: { type: Object },
   startTime: { type: Date }
 }, { timestamps: true });
 

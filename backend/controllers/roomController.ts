@@ -21,7 +21,7 @@ export const createRoom = async (req: AuthRequest, res: Response): Promise<void>
       players: [req.userId],
       status: 'waiting',
       problemId: problem._id,
-      problemData: problem // Cache the data for fast socket access
+      problemData: problem
     });
     await room.save();
     res.status(201).json(room);

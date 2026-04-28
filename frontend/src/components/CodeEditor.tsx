@@ -23,7 +23,7 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ code, onChange, language, setLa
       {isBlurred && (
         <div style={{
           position: 'absolute',
-          top: '36px', // height of header
+          top: '36px',
           left: 0,
           right: 0,
           bottom: 0,
@@ -96,8 +96,7 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ code, onChange, language, setLa
             fontSize: 14,
             scrollBeyondLastLine: false,
             automaticLayout: true,
-            padding: { top: 10, bottom: 10 },
-            backgroundColor: '#0b1220'
+            padding: { top: 10, bottom: 10 }
           }}
         />
       </div>

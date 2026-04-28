@@ -19,8 +19,6 @@ const BattlePage: React.FC = () => {
   const socket = useSocket();
   const { user } = useAuth();
   
-  // States
-  const [room, setRoom] = useState<RoomData | null>(null);
   const [problem, setProblem] = useState<any>(null);
   const [status, setStatus] = useState<string>('Connecting...');
   const [myCode, setMyCode] = useState<string>('// Write your code here\n');
@@ -36,14 +34,13 @@ const BattlePage: React.FC = () => {
   const [timeLeft, setTimeLeft] = useState<number | null>(null);
   const [showOverlay, setShowOverlay] = useState<boolean>(true);
 
-  const BATTLE_DURATION = 1800; // 30 minutes in seconds
+  const BATTLE_DURATION = 1800;
 
   const calculateTimeLeft = (startTimeStr: string) => {
     const startTime = new Date(startTimeStr).getTime();
     const now = new Date().getTime();
     const elapsed = Math.floor((now - startTime) / 1000);
-    const remaining = Math.max(0, BATTLE_DURATION - elapsed);
-    return remaining;
+    return Math.max(0, BATTLE_DURATION - elapsed);
   };
 
   const copyRoomId = () => {
@@ -54,13 +51,12 @@ const BattlePage: React.FC = () => {
     }
   };
 
-  // --- Resizable Logic ---
   const [leftWidth, setLeftWidth] = useState(() => Number(localStorage.getItem('sync-left-width')) || 40);
   const [editorHeight, setEditorHeight] = useState(() => Number(localStorage.getItem('sync-editor-height')) || 65);
   
   const isResizingH = useRef(false);
   const isResizingV = useRef(false);
-  const requestRef = useRef<number>();
+  const requestRef = useRef<number | null>(null);
 
   const startResizingH = useCallback(() => {
     isResizingH.current = true;
@@ -115,18 +111,11 @@ const BattlePage: React.FC = () => {
     };
   }, [handleResize, stopResizing]);
 
-  const sampleProblem = {
-    title: 'Two Sum',
-    description: 'Given an array of integers nums and an integer target, return indices of the two numbers such that they add up to target.',
-    examples: [{ input: '2 7 11 15\n9', output: '0 1' }]
-  };
-
   useEffect(() => {
     const fetchRoom = async () => {
       try {
         const response = await api.get(`/room/${roomId}`);
         const data: RoomData = response.data;
-        setRoom(data);
         if (data.status === 'active') {
           setStatus('Battle Active');
           if (data.startTime) setTimeLeft(calculateTimeLeft(data.startTime));
