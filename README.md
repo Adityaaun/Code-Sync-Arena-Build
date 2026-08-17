@@ -84,6 +84,7 @@ Code-Sync-Arena-Build/
 │   │   ├── pages/
 │   │   └── services/
 │   ├── package.json
+│   ├── vercel.json
 │   └── vite.config.ts
 ├── assets/
 └── README.md
@@ -93,7 +94,7 @@ Code-Sync-Arena-Build/
 
 ### Prerequisites
 
-- Node.js 18+
+- Node.js 20.19+ (or 22.12+)
 - MongoDB (local or MongoDB Atlas)
 - A Judge0-compatible execution endpoint
 
@@ -172,7 +173,7 @@ Set:
 
 ```text
 Root Directory: backend
-Build Command: npm install && npm run build
+Build Command: npm ci && npm run build
 Start Command: npm start
 ```
 
@@ -213,6 +214,8 @@ Add these Vercel environment variables:
 VITE_API_URL=https://your-render-service.onrender.com/api
 VITE_SOCKET_URL=https://your-render-service.onrender.com
 ```
+
+The repository includes `frontend/vercel.json` so React Router routes such as `/battle/:roomId` continue to work when opened or refreshed directly in production.
 
 Deploy the frontend, then use the generated Vercel URL as the Render `FRONTEND_URL` value.
 
