@@ -17,6 +17,7 @@ export interface IStarterCode {
   java?: string;
 }
 
+// Internal server-side problem shape. Test cases must never be sent to clients.
 export interface IProblem {
   _id: string;
   title: string;
@@ -28,21 +29,27 @@ export interface IProblem {
   starterCode: IStarterCode;
 }
 
+export interface IPublicProblem {
+  _id: string;
+  title: string;
+  description: string;
+  topic: string;
+  difficulty: string;
+  examples: IExample[];
+  starterCode: IStarterCode;
+}
+
 export interface IJoinRoomPayload {
   roomId: string;
-  userId: string;
 }
 
 export interface ICodeChangePayload {
   roomId: string;
-  userId: string;
   code: string;
 }
 
 export interface IRunCodePayload {
   roomId: string;
-  userId: string;
   code: string;
   language: string;
 }
-
