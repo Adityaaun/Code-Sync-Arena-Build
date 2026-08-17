@@ -4,12 +4,6 @@ export interface IExample {
   explanation?: string;
 }
 
-export interface ITestCase {
-  input: string;
-  expectedOutput: string;
-  isHidden: boolean;
-}
-
 export interface IStarterCode {
   javascript?: string;
   python?: string;
@@ -24,6 +18,5 @@ export interface IProblem {
   topic: string;
   difficulty: string;
   examples: IExample[];
-  testCases: ITestCase[];
   starterCode: IStarterCode;
 }
