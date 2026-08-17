@@ -1,17 +1,18 @@
 # CodeSync Arena ⚔️
 
-**CodeSync Arena** is a real-time 1v1 competitive coding platform where developers solve DSA problems head-to-head. It combines a synchronized Monaco editor, Socket.IO-based battle events, MongoDB persistence, and Judge0 code execution.
+**CodeSync Arena** is a real-time 1v1 competitive coding platform where developers solve DSA problems head-to-head. It combines a synchronized Monaco editor, authenticated Socket.IO battle events, MongoDB persistence, and Judge0 code execution.
 
 ![CodeSync Hero](./assets/hero.png)
 
 ## 🚀 Features
 
 - **Real-time code synchronization** between players using Socket.IO.
-- **1v1 room-based battles** with topic and difficulty selection.
+- **Authenticated 1v1 room-based battles** with topic and difficulty selection.
 - **Multi-language execution** for C++, Java, Python, and JavaScript through Judge0.
 - **Live battle experience** with problem assignment, code changes, execution results, and submission handling.
-- **Anti-cheat opponent view** with blurred opponent code during the battle.
-- **JWT authentication** with bcrypt password hashing.
+- **Anti-cheat opponent view** with opponent code hidden during the battle.
+- **JWT authentication** with bcrypt password hashing for REST APIs and Socket.IO connections.
+- **Hidden test cases stay server-side** and are never included in public room/problem payloads.
 - **MongoDB persistence** for users, rooms, problem data, and submitted code state.
 - **Automatic room cleanup** using a MongoDB TTL index.
 - **Responsive dark-themed coding interface** built around Monaco Editor.
@@ -36,7 +37,7 @@
 │  Monaco Editor       │
 └──────────┬───────────┘
            │ HTTPS / REST
-           │ WebSocket
+           │ Authenticated WebSocket
            ▼
 ┌──────────────────────┐
 │ Node.js + Express    │
@@ -54,13 +55,14 @@
 
 ### Main flow
 
-1. A user registers or logs in.
-2. The frontend stores the JWT and connects to the Socket.IO server.
+1. A user registers or logs in and receives a JWT.
+2. The frontend uses the JWT for protected REST requests and the Socket.IO handshake.
 3. A host creates a room and selects the battle configuration.
 4. Another authenticated user joins with the room ID.
-5. Both clients receive the assigned problem and synchronize code changes through Socket.IO.
-6. Code is executed through the backend using Judge0.
-7. A successful submission ends the match and broadcasts the winner.
+5. The backend verifies that the socket user belongs to the room, then sends only public problem data to both clients.
+6. Code changes synchronize through authenticated Socket.IO events.
+7. Code is executed through the backend using Judge0; hidden test cases remain server-side.
+8. A successful submission ends the match and broadcasts the winner.
 
 ## 📁 Project Structure
 
@@ -73,7 +75,7 @@ Code-Sync-Arena-Build/
 │   ├── routes/
 │   ├── services/
 │   ├── socket/
-│   ├── types/
+│   ├── types.ts
 │   ├── index.ts
 │   ├── package.json
 │   └── tsconfig.json
@@ -135,7 +137,18 @@ VITE_API_URL=http://localhost:5000/api
 VITE_SOCKET_URL=http://localhost:5000
 ```
 
-### 5. Run locally
+### 5. Seed the coding problems
+
+If the database is new or empty, run the seed script once:
+
+```bash
+cd backend
+npm run seed
+```
+
+The repository seed contains the project's curated coding problems. Do not run the seed repeatedly against a production database unless you intend to replace/recreate the problem data.
+
+### 6. Run locally
 
 Backend:
 
@@ -219,7 +232,18 @@ The repository includes `frontend/vercel.json` so React Router routes such as `/
 
 Deploy the frontend, then use the generated Vercel URL as the Render `FRONTEND_URL` value.
 
-### 4. Final production verification
+### 4. Seed the production database
+
+For a fresh MongoDB Atlas database, seed the deployed database from a trusted local environment using the same production connection string:
+
+```bash
+cd backend
+MONGO_URI="your_mongodb_atlas_connection_string" npm run seed
+```
+
+Keep the Atlas credentials private and never commit them to GitHub.
+
+### 5. Final production verification
 
 Test the deployed application in this order:
 
@@ -230,7 +254,7 @@ Test the deployed application in this order:
 5. Open the application in a second browser/incognito window.
 6. Register/login as a second user.
 7. Join the first user's room.
-8. Confirm both players receive the same problem.
+8. Confirm both players receive the same public problem data.
 9. Confirm code changes synchronize in real time.
 10. Run code and confirm Judge0 results appear.
 11. Submit a correct solution and confirm the match ends with the correct winner.

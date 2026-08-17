@@ -2,8 +2,13 @@ import { Response } from 'express';
 import { AuthRequest } from '../middleware/authMiddleware';
 import Room from '../models/Room';
 import { v4 as uuidv4 } from 'uuid';
-
 import { getRandomProblem } from '../services/problemService';
+
+const toPublicRoom = (room: any) => {
+  const data = typeof room?.toObject === 'function' ? room.toObject() : room;
+  const { problemData: _problemData, ...safeRoom } = data;
+  return safeRoom;
+};
 
 export const createRoom = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
@@ -29,14 +34,10 @@ export const createRoom = async (req: AuthRequest, res: Response): Promise<void>
       problemData: problem
     });
     await room.save();
-    res.status(201).json(room);
+    res.status(201).json(toPublicRoom(room));
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : 'Error creating room';
     console.error('Room creation error:', error);
-    res.status(500).json({ 
-      message: errorMessage,
-      error: process.env.NODE_ENV === 'development' ? error : undefined
-    });
+    res.status(500).json({ message: 'Error creating room' });
   }
 };
 
@@ -63,7 +64,7 @@ export const joinRoom = async (req: AuthRequest, res: Response): Promise<void> =
     }
 
     if (room.players.map(id => id.toString()).includes(userId)) {
-      res.status(200).json(room);
+      res.status(200).json(toPublicRoom(room));
       return;
     }
 
@@ -73,9 +74,10 @@ export const joinRoom = async (req: AuthRequest, res: Response): Promise<void> =
       room.startTime = new Date();
     }
     await room.save();
-    res.json(room);
+    res.json(toPublicRoom(room));
   } catch (error) {
-    res.status(500).json({ message: 'Error joining room', error });
+    console.error('Error joining room:', error);
+    res.status(500).json({ message: 'Error joining room' });
   }
 };
 
@@ -87,8 +89,9 @@ export const getRoom = async (req: AuthRequest, res: Response): Promise<void> =>
       res.status(404).json({ message: 'Room not found' });
       return;
     }
-    res.json(room);
+    res.json(toPublicRoom(room));
   } catch (error) {
-    res.status(500).json({ message: 'Error fetching room', error });
+    console.error('Error fetching room:', error);
+    res.status(500).json({ message: 'Error fetching room' });
   }
 };
